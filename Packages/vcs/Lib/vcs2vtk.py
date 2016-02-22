@@ -504,30 +504,31 @@ def genGrid(data1, data2, gm, deep=True, grid=None, geo=None):
     projection = vcs.elements["projection"][gm.projection]
     if grid is None:
         vg.SetPoints(pts)
-
-        writer = vtk.vtkXMLDataSetWriter()
-        ext = "vts" if (vg.GetDataObjectType() == vtk.VTK_STRUCTURED_GRID) else "vtu"
-        writer.SetFileName("lonlat." + ext)
-        writer.SetInputData(vg)
-        writer.Write()
+        if _DEBUG_VTK:
+            writer = vtk.vtkXMLDataSetWriter()
+            ext = "vts" if (vg.GetDataObjectType() == vtk.VTK_STRUCTURED_GRID) else "vtu"
+            writer.SetFileName("lonlat." + ext)
+            writer.SetInputData(vg)
+            writer.Write()
         # we use plotting coordinates for doing the projection
         # such that parameters such that central meridian are set correctly
         geo, geopts = project(pts, projection, getBoundsForPlotting(
             [gm.datawc_x1, gm.datawc_x2, gm.datawc_y1, gm.datawc_y2], [xm, xM, ym, yM], wrap))
         # Sets the vertics into the grid
         vg.SetPoints(geopts)
-
-        writerg = vtk.vtkXMLDataSetWriter()
-        writerg.SetFileName("geo." + ext)
-        writerg.SetInputData(vg)
-        writerg.Write()
+        if _DEBUG_VTK:
+            writerg = vtk.vtkXMLDataSetWriter()
+            writerg.SetFileName("geo." + ext)
+            writerg.SetInputData(vg)
+            writerg.Write()
 
     else:
         vg = grid
-        writer = vtk.vtkXMLDataSetWriter()
-        writer.SetFileName("lonlat.vts")
-        writer.SetInputData(vg)
-        writer.Write()
+        if _DEBUG_VTK:
+            writer = vtk.vtkXMLDataSetWriter()
+            writer.SetFileName("lonlat.vts")
+            writer.SetInputData(vg)
+            writer.Write()
 
     out = {"vtk_backend_grid": vg,
            "xm": xm,
