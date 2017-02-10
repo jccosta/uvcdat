@@ -1,4 +1,4 @@
-import os, sys, numpy, MV2, cdms2, testing.regression as regression
+import os, sys, numpy, MV2, cdms2, vcs.testing.regression as regression
 
 s= numpy.sin(numpy.arange(100))
 s = numpy.reshape(s,(10,10))
@@ -12,5 +12,5 @@ x.setantialiasing(0)
 x.drawlogooff()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 x.plot(s,bg=1)
-fnm = "infinity.png"
+fnm = os.path.split(__file__)[1][:-3] + ".png"
 regression.run(x, fnm)

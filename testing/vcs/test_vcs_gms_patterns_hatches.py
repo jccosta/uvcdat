@@ -1,4 +1,4 @@
-import argparse, os, sys, cdms2, vcs, testing.regression as regression
+import argparse, os, sys, cdms2, vcs, vcs.testing.regression as regression
 
 p = argparse.ArgumentParser(description="Patterns/hatches testing code for vcs gms")
 p.add_argument("--source", dest="src", help="source image file")
@@ -25,6 +25,8 @@ bg = not args.show
 
 x = vcs.init()
 x.setantialiasing(0)
+x.setcolormap("classic")
+
 if bg:
     x.setbgoutputdimensions(1200, 1091, units="pixels")
 gm = vcs.creategraphicsmethod(gm_type, "default")

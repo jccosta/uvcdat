@@ -1,7 +1,7 @@
 set(BASELINE_DIR "${UVCDAT_GIT_TESTDATA_DIR}/baselines/vcs")
 
 cdat_add_test(flake8_vcs
-  flake8 "${cdat_SOURCE_DIR}/Packages/vcs/vcs/"
+    flake8 "${cdat_BINARY_DIR}/vcs/vcs/"
   --show-source # Show context for detected errors
   --statistics  # Show summary of errors at end of output
   --max-line-length=120 # Reasonable line length
@@ -14,12 +14,25 @@ cdat_add_test(test_vcs_bad_png_path
 )
 
 foreach(projection polar mollweide lambert orthographic mercator polyconic robinson)
-  cdat_add_test(test_vcs_boxfill_${projection}
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_projection.py
-    "${BASELINE_DIR}/test_vcs_boxfill_${projection}.png"
-    ${projection}
-    )
+  foreach(zoom none datawc subset)
+    if (zoom STREQUAL "none")
+      cdat_add_test(test_vcs_boxfill_${projection}
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_projection.py
+        "${BASELINE_DIR}/test_vcs_boxfill_${projection}.png"
+        ${projection}
+        ${zoom}
+        )
+    else()
+      cdat_add_test(test_vcs_boxfill_${projection}_${zoom}
+        "${PYTHON_EXECUTABLE}"
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_projection.py
+        "${BASELINE_DIR}/test_vcs_boxfill_${projection}_${zoom}.png"
+        ${projection}
+        ${zoom}
+        )
+    endif()
+  endforeach()
 endforeach()
 
 foreach(lat_0 45 90)
@@ -51,6 +64,13 @@ cdat_add_test(test_vcs_fillarea_transparency
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_fillarea_transparency.py
   "${BASELINE_DIR}/test_vcs_fillarea_transparency.png"
 )
+
+cdat_add_test(test_drawLinesAndMarkersLegend
+    "${PYTHON_EXECUTABLE}"
+    ${cdat_SOURCE_DIR}/testing/vcs/test_drawLinesAndMarkersLegend.py
+    "${BASELINE_DIR}/test_drawLinesAndMarkersLegend.png"
+    )
+
 cdat_add_test(test_vcs_import
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
@@ -412,6 +432,15 @@ cdat_add_test(test_vcs_missing_colorname
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_missing_colorname.py
   "${BASELINE_DIR}/test_vcs_missing_colorname.png"
   )
+FOREACH(gm isofill boxfill meshfill)
+  cdat_add_test(test_vcs_missing_opacity_${gm}
+    "${PYTHON_EXECUTABLE}"
+    "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_missing_opacity_gms.py"
+    --gm_type=${gm}
+    "--source=${BASELINE_DIR}/test_vcs_missing_opacity_${gm}.png"
+    "--threshold=15"
+    )
+ENDFOREACH(gm)
 cdat_add_test(test_vcs_geometry
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_geometry.py
@@ -419,6 +448,10 @@ cdat_add_test(test_vcs_geometry
 cdat_add_test(test_vcs_export_text
   "${PYTHON_EXECUTABLE}"
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_export_text.py
+  )
+cdat_add_test(test_vcs_canvas_switchfonts
+  "${PYTHON_EXECUTABLE}"
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_canvas_switchfonts.py
   )
 ##############################################################################
 #
@@ -436,6 +469,49 @@ if (CDAT_DOWNLOAD_SAMPLE_DATA)
         -s ${src}
         )
     ENDFOREACH()
+  ENDFOREACH()
+
+  cdat_add_test(test_vcs_custom_logo
+      "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_custom_logo.py
+      ${BASELINE_DIR}/test_vcs_custom_logo.png)
+
+  cdat_add_test(test_vcs_put_png_on_canvas_1_0_0_percent_True
+      "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_put_png_on_canvas.py
+      -z 1.0
+      -x 0.0
+      -y 0.0
+      -s ${BASELINE_DIR}/test_vcs_put_png_on_canvas_1.0_0.0_0.0_percent_True.png)
+  cdat_add_test(test_vcs_put_png_on_canvas_1_0_0_pixels_False
+      "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_put_png_on_canvas.py
+      -z 1.0
+      -x 0.0
+      -y 0.0
+      -u pixels
+      -H
+      -s ${BASELINE_DIR}/test_vcs_put_png_on_canvas_1.0_0.0_0.0_pixels_False.png)
+  FOREACH(zoom .5 1.5)
+      FOREACH(xoff -25.0 25.0)
+          FOREACH(yoff 25.0 -25.0)
+              cdat_add_test(test_vcs_put_png_on_canvas_${zoom}_${xoff}_${yoff}_percent_True
+                  "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_put_png_on_canvas.py
+                  -z ${zoom}
+                  -x ${xoff}
+                  -y ${yoff}
+                  -s ${BASELINE_DIR}/test_vcs_put_png_on_canvas_${zoom}_${xoff}_${yoff}_percent_True.png)
+          ENDFOREACH()
+      ENDFOREACH()
+      FOREACH(xoff 250.0 -250.0)
+          FOREACH(yoff 250.0 -250.0)
+              cdat_add_test(test_vcs_put_png_on_canvas_${zoom}_${xoff}_${yoff}_pixels_False
+                  "${PYTHON_EXECUTABLE}" ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_put_png_on_canvas.py
+                  -z ${zoom}
+                  -x ${xoff}
+                  -y ${yoff}
+                  -u pixels
+                  -H
+                  -s ${BASELINE_DIR}/test_vcs_put_png_on_canvas_${zoom}_${xoff}_${yoff}_percent_True.png)
+          ENDFOREACH()
+      ENDFOREACH()
   ENDFOREACH()
 
   # NOTE Fix baseline name
@@ -783,11 +859,15 @@ cdat_add_test(test_vcs_settings_color_name_rgba
   #  ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
   #  ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
   #  )
-  cdat_add_test(test_vcs_polar_set_opt_param_polar
-    "${PYTHON_EXECUTABLE}"
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_polar_set_opt_param_polar.py
-    "${BASELINE_DIR}/test_vcs_polar_set_opt_param_polar.png"
-    )
+
+  foreach(z none subset datawc0 datawc1 datawc2)
+    cdat_add_test(test_vcs_polar_zoom_${z}
+      "${PYTHON_EXECUTABLE}"
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_polar_zoom.py
+      "${BASELINE_DIR}/test_vcs_polar_zoom_${z}.png"
+      ${z})
+  endforeach()
+
   cdat_add_test(test_vcs_boxfill_lev1_lev2
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_lev1_lev2.py
@@ -903,6 +983,19 @@ cdat_add_test(test_vcs_settings_color_name_rgba
        )
    endforeach()
 
+   cdat_add_test(test_vcs_isofill_level3
+     "${PYTHON_EXECUTABLE}"
+     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isofill_levels.py
+     "${BASELINE_DIR}/test_vcs_isofill_level3.png"
+     "${UVCDAT_GIT_TESTDATA_DIR}/data/masked-file.nc"
+     3
+     )
+   cdat_add_test(test_vcs_isofill_masked_bounds
+     "${PYTHON_EXECUTABLE}"
+     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_isofill_masked_bounds.py
+     "${BASELINE_DIR}/test_vcs_isofill_masked_bounds.png"
+     "${UVCDAT_GIT_TESTDATA_DIR}/data/coads_climatology.nc"
+     )
   cdat_add_test(test_vcs_issue_960_labels
     "${PYTHON_EXECUTABLE}"
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_issue_960_labels.py
@@ -1057,12 +1150,12 @@ cdat_add_test(test_vcs_large_pattern_hatch
 foreach(x_over_y 0.5 2)
  # a_meshfill does not work yet, as meshfills are wrapped which is not known to VCS
  foreach(plot a_boxfill a_mollweide_boxfill a_robinson_meshfill a_lambert_isofill a_robinson_isoline)
-   foreach(mode foreground background)
+   foreach(mode 0 1)
      string(SUBSTRING ${plot} 2 -1 plot_name)
      cdat_add_test(test_vcs_autot_axis_titles_${mode}_${plot_name}_${x_over_y}
        "${PYTHON_EXECUTABLE}"
        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_autot_axis_titles.py
-       "${BASELINE_DIR}/test_vcs_autot_axis_titles_${plot_name}_${x_over_y}.png"
+       "${BASELINE_DIR}/test_vcs_autot_axis_titles_${plot_name}_${x_over_y}_${mode}.png"
        ${mode}
        ${plot}
        ${x_over_y}
@@ -1101,11 +1194,11 @@ cdat_add_test(test_vcs_no_continents
   ${BASELINE_DIR}/test_vcs_no_continents.png
 )
 
-cdat_add_test(test_vcs_center_longitude
-  "${PYTHON_EXECUTABLE}"
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_center_longitude.py
-  ${BASELINE_DIR}/test_vcs_center_longitude.png
-)
+#cdat_add_test(test_vcs_center_longitude
+#  "${PYTHON_EXECUTABLE}"
+#  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_center_longitude.py
+#  ${BASELINE_DIR}/test_vcs_center_longitude.png
+#)
 
 cdat_add_test(test_vcs_textextents
   "${PYTHON_EXECUTABLE}"

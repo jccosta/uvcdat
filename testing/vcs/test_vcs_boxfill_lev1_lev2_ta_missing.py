@@ -1,4 +1,4 @@
-import os, sys, cdms2, vcs, testing.regression as regression
+import os, sys, cdms2, vcs, vcs.testing.regression as regression
 
 x = regression.init()
 f = cdms2.open(vcs.sample_data+"/ta_ncep_87-6-88-4.nc")
@@ -8,4 +8,5 @@ b = x.createboxfill()
 b.level_1 = -40
 b.level_2 = 40
 x.plot(s, b, bg=1)
-regression.run(x, "test_boxfill_lev1_lev2_ta_missing.png")
+fnm = os.path.split(__file__)[1][:-3] + ".png"
+regression.run(x, fnm)

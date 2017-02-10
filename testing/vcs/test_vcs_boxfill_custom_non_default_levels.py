@@ -1,4 +1,4 @@
-import cdms2, os, sys, vcs, testing.regression as regression
+import cdms2, os, sys, vcs, vcs.testing.regression as regression
 
 # Load the clt data:
 dataFile = cdms2.open(os.path.join(vcs.sample_data, "clt.nc"))
@@ -19,4 +19,5 @@ boxfill.levels=levels
 boxfill.fillareacolors=vcs.getcolors(levels)
 
 canvas.plot(clt, boxfill, bg=1)
-regression.run(canvas, "test_boxfill_custom_no_default_levels.png")
+fnm = os.path.split(__file__)[1][:-3] + ".png"
+regression.run(canvas, fnm)

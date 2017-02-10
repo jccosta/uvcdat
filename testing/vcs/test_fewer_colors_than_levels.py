@@ -1,4 +1,4 @@
-import os, sys, cdms2, vcs, testing.regression as regression
+import os, sys, cdms2, vcs, vcs.testing.regression as regression
 
 dataset = cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
 data = dataset("clt")
@@ -9,6 +9,7 @@ boxfill = canvas.createboxfill()
 
 boxfill.color_1 = 242
 boxfill.color_2 = 250
+boxfill.colormap = "classic"
 
 canvas.plot(data, boxfill, bg=1)
 

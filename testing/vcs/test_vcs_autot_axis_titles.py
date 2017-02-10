@@ -1,4 +1,4 @@
-import vcs, cdms2, os, sys, testing.regression as regression
+import vcs, cdms2, os, sys, vcs.testing.regression as regression
 
 testConfig = {'a_boxfill': ('clt.nc', 'clt'),
               'a_mollweide_boxfill': ('clt.nc', 'clt'),
@@ -8,9 +8,7 @@ testConfig = {'a_boxfill': ('clt.nc', 'clt'),
               'a_robinson_isoline': ('clt.nc', 'clt')}
 
 # Tests if ratio=autot works correctly for background and foreground plots
-bg = 1
-if (sys.argv[2] == 'foreground'):
-    bg = 0
+bg = int(sys.argv[2])
 plot = sys.argv[3]
 x_over_y = sys.argv[4]
 if (x_over_y == '0.5'):

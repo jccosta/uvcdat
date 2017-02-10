@@ -1,4 +1,4 @@
-import os, sys, cdms2, vcs, testing.regression as regression
+import os, sys, cdms2, vcs, vcs.testing.regression as regression
 import matplotlib
 sp = matplotlib.__version__.split(".")
 if int(sp[0])*10+int(sp[1])<15:
@@ -15,4 +15,5 @@ clt = clt(latitude=(-90.0, 90.0), longitude=(-180., 175.), squeeze=1,
 canvas = regression.init()
 canvas.setcolormap(vcs.matplotlib2vcs("viridis"))
 canvas.plot(clt, bg=1)
-regression.run(canvas, "test_matplotlib_colormap.png")
+fnm = os.path.split(__file__)[1][:-3] + ".png"
+regression.run(canvas, fnm)

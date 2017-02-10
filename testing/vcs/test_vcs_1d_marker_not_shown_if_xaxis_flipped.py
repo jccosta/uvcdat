@@ -1,5 +1,5 @@
 
-import vcs, numpy, cdms2, MV2, os, sys, testing.regression as regression
+import vcs, numpy, cdms2, MV2, os, sys, vcs.testing.regression as regression
 
 x = regression.init()
 data = MV2.array([4,5,6,7,1,3,7,9,])+230.
@@ -12,4 +12,5 @@ gm.datawc_x1=1000
 gm.datawc_x2=0
 gm.markersize=30
 x.plot(data,gm,bg=1)
-regression.run(x, "test_1d_marker_not_shown_if_xaxis_flipped.png", sys.argv[1])
+fnm = os.path.split(__file__)[1][:-3] + ".png"
+regression.run(x, fnm, sys.argv[1])

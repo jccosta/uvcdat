@@ -1,4 +1,4 @@
-import argparse, os, sys, cdms2, MV2, testing.regression as regression, vcs, vtk
+import argparse, os, sys, cdms2, MV2, vcs.testing.regression as regression, vcs, vtk
 
 p = argparse.ArgumentParser(description="Basic gm testing code for vcs")
 p.add_argument("--source", dest="src", help="source image file")
@@ -30,7 +30,6 @@ x.setantialiasing(0)
 x.drawlogooff()
 if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")
-x.setcolormap("rainbow")
 exec("gm=vcs.create%s()" % gm_type)
 if args.projtype != "default":
     p = vcs.createprojection()
@@ -106,8 +105,14 @@ if args.transparent:
     for i in range(256):  # tweaks all colors
         cmap.setcolorcell(i,100.,0,0,i/2.55)
     x.setcolormap(cmap)
+    if gm_type == "vector":
+        gm.linecolor = [100, 0, 0, 50.]
+    elif gm_type in ["yxvsx","xyvsy","yvsx","scatter","1d"]:
+        gm.linecolor = [100, 0, 0, 50.]
+        gm.markercolor = [100, 0, 0, 50.]
 
 if gm_type=="vector":
+    gm.scale = 4.
     x.plot(u,v,gm,bg=bg)
 elif gm_type in ["scatter","xvsy"]:
     x.plot(s,s2,gm,bg=bg)

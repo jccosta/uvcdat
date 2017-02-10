@@ -1,4 +1,4 @@
-import argparse, os, sys, cdms2, vcs, testing.regression as regression
+import argparse, os, sys, cdms2, vcs, vcs.testing.regression as regression
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-g",dest="gm",default="boxfill",choices = ["boxfill","isofill","meshfill","isoline","vector","1d"])
@@ -25,8 +25,9 @@ else:
 if args.gm != "meshfill":
   f=cdms2.open(os.path.join(vcs.sample_data,"clt.nc"))
   if args.gm == "vector":
-    u = f("u")
-    v = f("v")
+    u = f("u")[...,::2,::2]
+    v = f("v")[...,::2,::2]
+    gm.scale = 8.
   else:
     s=f("clt",slice(0,1))
 else:

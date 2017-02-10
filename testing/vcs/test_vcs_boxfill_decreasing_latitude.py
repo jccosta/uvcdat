@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import cdms2, cdutil, os, sys, vcs, testing.regression as regression
+import cdms2, cdutil, os, sys, vcs, vcs.testing.regression as regression
 
 f = cdms2.open(sys.argv[2])
 ice = f("variable_6")
@@ -43,7 +43,7 @@ ice.long_name = "September sea ice fraction: 4xCO2 climate, no ocean albedo alte
 levs = vcs.mkscale(ice.min(), ice.max())
 
 cols = vcs.getcolors(levs)
-cols[0] = 240
+cols[0] = 'white'
 
 gm.levels = levs
 gm.fillareacolors = cols
@@ -52,4 +52,5 @@ gm.datawc_y2 = 30
 gm.datawc_y1 = 90
 
 x.plot(ice, gm, tmpl, bg=1)
-regression.run(x, "test_boxfill_decreasing_latitude.png")
+fnm = os.path.split(__file__)[1][:-3] + ".png"
+regression.run(x, fnm)

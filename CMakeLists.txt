@@ -137,6 +137,13 @@ option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" OFF)
 include(CMakeDependentOption)
 cmake_dependent_option(CDAT_BUILD_OFFSCREEN "Use OSMesa for offscreen rendering." OFF
   "NOT APPLE" OFF)
+if (CDAT_BUILD_OFFSCREEN)
+    message("[INFO] will build against -nox version of conda packages")
+    set(CONDA_NOX "-nox")
+else()
+    message("[INFO] will build against regular X version of conda packages")
+    set(CONDA_NOX "")
+endif()
 
 # Option to enable vtkweb for cdatweb
 option(CDAT_BUILD_WEB "Build in Web support (VTKWeb, etc.)" OFF)
@@ -248,6 +255,15 @@ include(cdat_pkg)
 # CONDA Options
 set(CONDA_ENVIRONMENT_NAME ${cdat_VERSION} CACHE STRING "Name of conda environment we want to build CDAT in")
 set(CONDA_CHANNEL_UVCDAT uvcdat CACHE STRING "channels to use (if more than one use '-c' between channels e.g. uvcdat/label/nightly -c uvcdat)")
+
+execute_process(COMMAND
+    "${GIT_EXECUTABLE}" symbolic-ref --short HEAD
+    WORKING_DIRECTORY "${cdat_SOURCE_DIR}"
+    RESULT_VARIABLE RESULT
+    ERROR_VARIABLE OUTPUT
+    OUTPUT_VARIABLE CURRENT_BRANCH)
+message("[INFO] CURRENT BRANCH ${CURRENT_BRANCH}")
+set(CHECKOUT_BRANCH ${CURRENT_BRANCH} CACHE STRING "branch to try to check out on each repo")
 # Now sort and include external packages
 #=============================================================================
 include(TopologicalSort)
@@ -297,7 +313,6 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/clean_local_build.bas
     ${cdat_CMAKE_BINARY_DIR}/clean_local_build.bash
     @ONLY
     )
-add_subdirectory(testing)
 
 # Clean conda env
 add_custom_target(clean-conda
@@ -308,3 +323,30 @@ add_custom_target(clean-conda
 add_custom_target(clean-local
     COMMAND ${cdat_CMAKE_BINARY_DIR}/clean_local_build.bash
     )
+
+# Let's clone the repos so that we can add test suites...
+set(GIT_REPOS "cdat_info;cdtime;cdms;esg;dv3d;vcs;vcsaddons;cdutil;unidata;xmgrace;genutil;thermo;wk;distarray")
+foreach(gpkg ${GIT_REPOS})
+    message("[INFO] cloning repo: ${gpkg}")
+    execute_process(COMMAND
+        "${GIT_EXECUTABLE}" clone git://github.com/UV-CDAT/${gpkg}
+        WORKING_DIRECTORY "${cdat_BINARY_DIR}"
+        RESULT_VARIABLE RESULT
+        ERROR_VARIABLE OUTPUT
+        OUTPUT_VARIABLE OUTPUT)
+    message("[INFO] checking out branch ${CHECKOUT_BRANCH}")
+    execute_process(COMMAND
+        "${GIT_EXECUTABLE}" pull
+        WORKING_DIRECTORY "${cdat_BINARY_DIR}/${gpkg}"
+        RESULT_VARIABLE RESULT
+        ERROR_VARIABLE OUTPUT
+        OUTPUT_VARIABLE OUTPUT)
+    execute_process(COMMAND
+        "${GIT_EXECUTABLE}" checkout ${CHECKOUT_BRANCH}
+        WORKING_DIRECTORY "${cdat_BINARY_DIR}/${gpkg}"
+        RESULT_VARIABLE RESULT
+        ERROR_VARIABLE OUTPUT
+        OUTPUT_VARIABLE OUTPUT)
+endforeach()
+# Now we can add testing directory
+add_subdirectory(testing)
